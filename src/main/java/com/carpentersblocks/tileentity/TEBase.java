@@ -102,7 +102,9 @@ public class TEBase extends TileEntity implements IProtected {
         }
 
         // Block either loaded or changed, update lighting and render state
-        updateWorldAndLighting();
+        if (lightValue > -1) {
+            updateWorldAndLighting();
+        }
     }
 
     @Override
