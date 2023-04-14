@@ -24,6 +24,7 @@ import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
+
 import com.carpentersblocks.CarpentersBlocks;
 import com.carpentersblocks.api.ICarpentersChisel;
 import com.carpentersblocks.api.ICarpentersHammer;
@@ -34,6 +35,7 @@ import com.carpentersblocks.renderer.helper.ParticleHelper;
 import com.carpentersblocks.tileentity.TEBase;
 import com.carpentersblocks.util.BlockProperties;
 import com.carpentersblocks.util.registry.BlockRegistry;
+
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -57,8 +59,7 @@ public class EventHandler {
     /**
      * Check render settings on GUI open/close event.
      */
-    public void onGuiOpenEvent(GuiOpenEvent event)
-    {
+    public void onGuiOpenEvent(GuiOpenEvent event) {
         if (event.gui == null) {
             if (ShadersHandler.enableShadersModCoreIntegration) {
                 ShadersHandler.update();
@@ -68,11 +69,9 @@ public class EventHandler {
 
     @SubscribeEvent
     /**
-     * Used to prevent block destruction if block is a Carpenter's Block
-     * and player is holding a Carpenter's tool.
+     * Used to prevent block destruction if block is a Carpenter's Block and player is holding a Carpenter's tool.
      */
-    public void onBlockBreakEvent(BlockEvent.BreakEvent event)
-    {
+    public void onBlockBreakEvent(BlockEvent.BreakEvent event) {
         EntityPlayer entityPlayer = event.getPlayer();
         ItemStack itemStack = entityPlayer.getHeldItem();
 
@@ -86,21 +85,23 @@ public class EventHandler {
         }
 
         if (event.block instanceof BlockCoverable) {
-            if (entityPlayer.capabilities.isCreativeMode && (item instanceof ICarpentersHammer || item instanceof ICarpentersChisel)) {
+            if (entityPlayer.capabilities.isCreativeMode
+                    && (item instanceof ICarpentersHammer || item instanceof ICarpentersChisel)) {
                 event.setCanceled(true);
             }
         }
     }
 
+    // An event to ignore on player interactions, because otherwise the mod will cancel its own event.
+    public static PlayerInteractEvent IGNORE_INTERACT_EVENT;
+
     @SubscribeEvent
     /**
-     * Used to store side clicked and also forces onBlockActivated
-     * event when entityPlayer is sneaking and activates block with the
-     * Carpenter's Hammer.
+     * Used to store side clicked and also forces onBlockActivated event when entityPlayer is sneaking and activates
+     * block with the Carpenter's Hammer.
      */
-    public void onPlayerInteractEvent(PlayerInteractEvent event)
-    {
-        if (event.isCanceled()) {
+    public void onPlayerInteractEvent(PlayerInteractEvent event) {
+        if (event.isCanceled() || (event == IGNORE_INTERACT_EVENT)) {
             return;
         }
 
@@ -113,30 +114,36 @@ public class EventHandler {
 
             ItemStack itemStack = eventEntityPlayer.getHeldItem();
 
-            MovingObjectPosition object = getMovingObjectPositionFromPlayer(eventEntityPlayer.worldObj, eventEntityPlayer);
+            MovingObjectPosition object = getMovingObjectPositionFromPlayer(
+                    eventEntityPlayer.worldObj,
+                    eventEntityPlayer);
 
             if (object != null) {
-                hitX = (float)object.hitVec.xCoord - event.x;
-                hitY = (float)object.hitVec.yCoord - event.y;
-                hitZ = (float)object.hitVec.zCoord - event.z;
+                hitX = (float) object.hitVec.xCoord - event.x;
+                hitY = (float) object.hitVec.yCoord - event.y;
+                hitZ = (float) object.hitVec.zCoord - event.z;
             } else {
                 hitX = hitY = hitZ = 1.0F;
             }
 
             switch (event.action) {
                 case LEFT_CLICK_BLOCK:
-                    boolean toolEquipped = itemStack != null && (itemStack.getItem() instanceof ICarpentersHammer || itemStack.getItem() instanceof ICarpentersChisel);
+                    boolean toolEquipped = itemStack != null && (itemStack.getItem() instanceof ICarpentersHammer
+                            || itemStack.getItem() instanceof ICarpentersChisel);
 
                     /*
-                     * Creative mode doesn't normally invoke onBlockClicked(), but rather it tries
-                     * to destroy the block.
-                     *
+                     * Creative mode doesn't normally invoke onBlockClicked(), but rather it tries to destroy the block.
                      * We'll invoke it here when a Carpenter's tool is being held.
                      */
 
                     if (!event.entity.worldObj.isRemote) {
                         if (toolEquipped && eventEntityPlayer.capabilities.isCreativeMode) {
-                            block.onBlockClicked(eventEntityPlayer.worldObj, event.x, event.y, event.z, eventEntityPlayer);
+                            block.onBlockClicked(
+                                    eventEntityPlayer.worldObj,
+                                    event.x,
+                                    event.y,
+                                    event.z,
+                                    eventEntityPlayer);
                         }
                     }
 
@@ -144,15 +151,11 @@ public class EventHandler {
                 case RIGHT_CLICK_BLOCK:
 
                     /*
-                     * To enable full functionality with the hammer, we need to override pretty
-                     * much everything that happens on sneak right-click.
-                     *
-                     * In order to invoke onBlockActivated() server-side, we must send a packet
-                     * from the client.
-                     * 
-                     * The server will receive the packet and attempt to alter the Carpenter's
-                     * block.  If nothing changes, vanilla behavior will resume - the Item(Block)
-                     * in the ItemStack (if applicable) will be created adjacent to block.
+                     * To enable full functionality with the hammer, we need to override pretty much everything that
+                     * happens on sneak right-click. In order to invoke onBlockActivated() server-side, we must send a
+                     * packet from the client. The server will receive the packet and attempt to alter the Carpenter's
+                     * block. If nothing changes, vanilla behavior will resume - the Item(Block) in the ItemStack (if
+                     * applicable) will be created adjacent to block.
                      */
 
                     if (eventEntityPlayer.isSneaking()) {
@@ -167,7 +170,6 @@ public class EventHandler {
                     break;
                 default: {}
             }
-
         }
     }
 
@@ -176,11 +178,9 @@ public class EventHandler {
     /**
      * Grabs mouse scroll events for slope selection.
      */
-    public void onMouseEvent(MouseEvent event)
-    {
+    public void onMouseEvent(MouseEvent event) {
         // We only want to process wheel events
-        if (event.button < 0)
-        {
+        if (event.button < 0) {
             EntityPlayer entityPlayer = Minecraft.getMinecraft().thePlayer;
 
             if (entityPlayer != null && entityPlayer.isSneaking()) {
@@ -196,11 +196,10 @@ public class EventHandler {
     }
 
     /**
-     * Returns the MovingObjectPosition of block hit by player.
-     * Adapted from protected method of same name in Item.class.
+     * Returns the MovingObjectPosition of block hit by player. Adapted from protected method of same name in
+     * Item.class.
      */
-    private MovingObjectPosition getMovingObjectPositionFromPlayer(World world, EntityPlayer entityPlayer)
-    {
+    private MovingObjectPosition getMovingObjectPositionFromPlayer(World world, EntityPlayer entityPlayer) {
         double xPos = entityPlayer.prevPosX + (entityPlayer.posX - entityPlayer.prevPosX);
         double yPos = entityPlayer.prevPosY + (entityPlayer.posY - entityPlayer.prevPosY) + (world.isRemote ? entityPlayer.getEyeHeight() - entityPlayer.getDefaultEyeHeight() : entityPlayer.getEyeHeight());
         double zPos = entityPlayer.prevPosZ + (entityPlayer.posZ - entityPlayer.prevPosZ);
@@ -210,13 +209,13 @@ public class EventHandler {
 
         float commonComp = -MathHelper.cos(-pitch * 0.017453292F);
 
-        float xComp = MathHelper.sin(-yaw * 0.017453292F - (float)Math.PI) * commonComp;
+        float xComp = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI) * commonComp;
         float yComp = MathHelper.sin(-pitch * 0.017453292F);
-        float zComp = MathHelper.cos(-yaw * 0.017453292F - (float)Math.PI) * commonComp;
+        float zComp = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI) * commonComp;
         double reachDist = 5.0D;
 
         if (entityPlayer instanceof EntityPlayerMP) {
-            reachDist = ((EntityPlayerMP)entityPlayer).theItemInWorldManager.getBlockReachDistance();
+            reachDist = ((EntityPlayerMP) entityPlayer).theItemInWorldManager.getBlockReachDistance();
         }
 
         Vec3 vec1 = Vec3.createVectorHelper(xPos, yPos, zPos);
@@ -226,18 +225,15 @@ public class EventHandler {
     }
 
     @SubscribeEvent
-    public void onLivingUpdateEvent(LivingUpdateEvent event)
-    {
+    public void onLivingUpdateEvent(LivingUpdateEvent event) {
         Entity entity = event.entityLiving;
         World world = entity.worldObj;
 
         /*
-         * The purpose of the function is to manifest sprint particles
-         * and adjust slipperiness when entity is moving on block, so check
-         * that the conditions are met first.
+         * The purpose of the function is to manifest sprint particles and adjust slipperiness when entity is moving on
+         * block, so check that the conditions are met first.
          */
-        if (!isMovingOnGround(entity))
-        {
+        if (!isMovingOnGround(entity)) {
             return;
         }
 
@@ -260,41 +256,33 @@ public class EventHandler {
             } else {
                 TE.getBlockType().slipperiness = block.slipperiness;
             }
-
         }
     }
 
     /**
-     * {@link onPlaySoundEvent} is used differently for singleplayer
-     * and multiplayer sound events. This will try to locate the {@link TEBase}
-     * that best represents the origin of the sound.
+     * {@link onPlaySoundEvent} is used differently for singleplayer and multiplayer sound events. This will try to
+     * locate the {@link TEBase} that best represents the origin of the sound.
      * <p>
-     * In singleplayer, this is normally the origin since it's used mainly
-     * for placement and destruction sounds.
+     * In singleplayer, this is normally the origin since it's used mainly for placement and destruction sounds.
      * <p>
-     * In multiplayer, foreign players produce this event for step sounds,
-     * requiring a y offset of -1 to approximate the origin.
+     * In multiplayer, foreign players produce this event for step sounds, requiring a y offset of -1 to approximate the
+     * origin.
      *
-     * @param  world the {@link World}
-     * @param  x the x coordinate
-     * @param  y the y coordinate
-     * @param  z the z coordinate
+     * @param world the {@link World}
+     * @param x     the x coordinate
+     * @param y     the y coordinate
+     * @param z     the z coordinate
      * @return an approximate {@link TEBase} used for producing a sound
      */
-    private TEBase getApproximateSoundOrigin(World world, int x, int y, int z)
-    {
+    private TEBase getApproximateSoundOrigin(World world, int x, int y, int z) {
         // Try origin first
         TileEntity TE = world.getTileEntity(x, y, z);
-        if (TE != null && TE instanceof TEBase)
-        {
+        if (TE != null && TE instanceof TEBase) {
             return (TEBase) TE;
-        }
-        else
-        {
+        } else {
             // Try y-offset -1
             TileEntity TE_YN = world.getTileEntity(x, y - 1, z);
-            if (TE_YN != null && TE_YN instanceof TEBase)
-            {
+            if (TE_YN != null && TE_YN instanceof TEBase) {
                 return (TEBase) TE_YN;
             }
         }
@@ -304,12 +292,9 @@ public class EventHandler {
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public void onPlaySoundEvent(PlaySoundEvent17 event)
-    {
-        if (event != null && event.name != null && event.name.contains(CarpentersBlocks.MODID))
-        {
-            if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
-            {
+    public void onPlaySoundEvent(PlaySoundEvent17 event) {
+        if (event != null && event.name != null && event.name.contains(CarpentersBlocks.MODID)) {
+            if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
                 World world = FMLClientHandler.instance().getClient().theWorld;
                 int x = MathHelper.floor_double(event.sound.getXPosF());
                 int y = MathHelper.floor_double(event.sound.getYPosF());
@@ -325,9 +310,21 @@ public class EventHandler {
                 }
 
                 if (event.name.startsWith("step.")) {
-                    event.result = new PositionedSoundRecord(new ResourceLocation(block.stepSound.getStepResourcePath()), block.stepSound.getVolume() * 0.15F, block.stepSound.getPitch(), x + 0.5F, y + 0.5F, z + 0.5F);
+                    event.result = new PositionedSoundRecord(
+                            new ResourceLocation(block.stepSound.getStepResourcePath()),
+                            block.stepSound.getVolume() * 0.15F,
+                            block.stepSound.getPitch(),
+                            x + 0.5F,
+                            y + 0.5F,
+                            z + 0.5F);
                 } else { // "dig." usually
-                    event.result = new PositionedSoundRecord(new ResourceLocation(block.stepSound.getBreakSound()), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F, x + 0.5F, y + 0.5F, z + 0.5F);
+                    event.result = new PositionedSoundRecord(
+                            new ResourceLocation(block.stepSound.getBreakSound()),
+                            (block.stepSound.getVolume() + 1.0F) / 2.0F,
+                            block.stepSound.getPitch() * 0.8F,
+                            x + 0.5F,
+                            y + 0.5F,
+                            z + 0.5F);
                 }
             }
         }
@@ -340,18 +337,15 @@ public class EventHandler {
      */
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public void onPlaySoundAtEntityEvent(PlaySoundAtEntityEvent event)
-    {
-        if (event != null && event.name != null && event.name.contains(CarpentersBlocks.MODID))
-        {
+    public void onPlaySoundAtEntityEvent(PlaySoundAtEntityEvent event) {
+        if (event != null && event.name != null && event.name.contains(CarpentersBlocks.MODID)) {
             Entity entity = event.entity;
 
             /*
-             * The function to my knowledge is only used for playing walking sounds
-             * at entity, so we'll check for the conditions first.
+             * The function to my knowledge is only used for playing walking sounds at entity, so we'll check for the
+             * conditions first.
              */
-            if (!isMovingOnGround(entity))
-            {
+            if (!isMovingOnGround(entity)) {
                 return;
             }
 
@@ -362,12 +356,11 @@ public class EventHandler {
                 event.name = Blocks.planks.stepSound.getStepResourcePath();
 
                 // Gather accurate SoundType based on block properties
-                Block block = BlockProperties.toBlock(BlockProperties.getFeatureSensitiveSideItemStack(TE, ForgeDirection.UP));
-                if (!(block instanceof BlockCoverable))
-                {
+                Block block = BlockProperties
+                        .toBlock(BlockProperties.getFeatureSensitiveSideItemStack(TE, ForgeDirection.UP));
+                if (!(block instanceof BlockCoverable)) {
                     event.name = block.stepSound.getStepResourcePath();
                 }
-
             }
         }
     }
@@ -380,33 +373,26 @@ public class EventHandler {
      * @param entity
      * @return
      */
-    private TEBase getTileEntityAtFeet(Entity entity)
-    {
+    private TEBase getTileEntityAtFeet(Entity entity) {
         int x = MathHelper.floor_double(entity.posX);
         int y = MathHelper.floor_double(entity.posY - 0.20000000298023224D - entity.yOffset);
         int z = MathHelper.floor_double(entity.posZ);
 
         TileEntity tileEntity = entity.worldObj.getTileEntity(x, y, z);
-        if (tileEntity != null && tileEntity instanceof TEBase)
-        {
+        if (tileEntity != null && tileEntity instanceof TEBase) {
             return (TEBase) tileEntity;
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
     /**
-     * Determines if the player is moving in the x, z directions on
-     * solid ground.
+     * Determines if the player is moving in the x, z directions on solid ground.
      *
      * @param entity
      * @return
      */
-    private boolean isMovingOnGround(Entity entity)
-    {
+    private boolean isMovingOnGround(Entity entity) {
         return entity.onGround && (entity.motionX != 0 || entity.motionZ != 0);
     }
-
 }
