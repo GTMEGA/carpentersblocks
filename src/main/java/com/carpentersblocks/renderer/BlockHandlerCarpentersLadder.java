@@ -4,7 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.util.ForgeDirection;
 import com.carpentersblocks.data.Ladder;
 import com.carpentersblocks.tileentity.TEBase;
@@ -87,7 +87,7 @@ public class BlockHandlerCarpentersLadder extends BlockHandlerBase {
 
         /* Gather adjacent ladder metadata. */
 
-        World world = TE.getWorldObj();
+        IBlockAccess world = renderBlocks.blockAccess;
 
         boolean connects_XN = world.getBlock(x - 1, y, z).equals(srcBlock) && data.getDirection((TEBase) world.getTileEntity(x - 1, y, z)).equals(dir);
         boolean connects_XP = world.getBlock(x + 1, y, z).equals(srcBlock) && data.getDirection((TEBase) world.getTileEntity(x + 1, y, z)).equals(dir);

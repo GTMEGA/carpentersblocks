@@ -6,6 +6,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraftforge.common.util.ForgeDirection;
+
 import com.carpentersblocks.data.GarageDoor;
 import com.carpentersblocks.util.registry.IconRegistry;
 
@@ -17,8 +18,7 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
     boolean isOpen;
 
     @Override
-    public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderBlocks)
-    {
+    public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderBlocks) {
         renderBlocks.setRenderBounds(0.4375D, 0.75D, 0.0D, 0.5625D, 1.0D, 1.0D);
         super.renderInventoryBlock(block, metadata, modelID, renderBlocks);
         renderBlocks.setRenderBounds(0.4375D, 0.625D, 0.0D, 0.5625D, 0.75D, 0.3125D);
@@ -33,8 +33,7 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
     /**
      * Renders ladder.
      */
-    protected void renderCarpentersBlock(int x, int y, int z)
-    {
+    protected void renderCarpentersBlock(int x, int y, int z) {
         if (data.isVisible(TE)) {
 
             renderBlocks.renderAllFaces = true;
@@ -68,8 +67,7 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
     /**
      * Renders pane.
      */
-    public void renderPartPane(IIcon icon, int x, int y, int z, float offset)
-    {
+    public void renderPartPane(IIcon icon, int x, int y, int z, float offset) {
         switch (dir) {
             case NORTH:
                 renderBlocks.setRenderBounds(0.0F, 0.0F, 1.0F - offset, 1.0F, 1.0F, 1.0F - offset);
@@ -90,26 +88,23 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
     }
 
     /**
-     * When rendering garage door top piece in open state, it
-     * should use the bottommost cover for rendering.
+     * When rendering garage door top piece in open state, it should use the bottommost cover for rendering.
      *
      * @return the bottommost cover {@link ItemStack}
      */
-    private ItemStack getOpenCover()
-    {
-        return getCoverForRendering(data.getBottommost(TE.getWorldObj(), TE.xCoord, TE.yCoord, TE.zCoord));
+    private ItemStack getOpenCover() {
+        return getCoverForRendering(data.getBottommost(renderBlocks.blockAccess, TE.xCoord, TE.yCoord, TE.zCoord));
     }
 
     /**
      * Renders a default garage door at coordinates.
      *
      * @param itemStack the {@link ItemStack}
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param z the z coordinate
+     * @param x         the x coordinate
+     * @param y         the y coordinate
+     * @param z         the z coordinate
      */
-    public void renderTypeDefault(ItemStack itemStack, int x, int y, int z)
-    {
+    public void renderTypeDefault(ItemStack itemStack, int x, int y, int z) {
         if (data.isOpen(TE)) {
             renderBlockWithRotation(getOpenCover(), x, y, z, 0.0D, 0.5D, 0.125D, 1.0D, 1.0D, 0.25D, dir);
         } else {
@@ -124,18 +119,19 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
      * Renders a glass top garage door at coordinates.
      *
      * @param itemStack the {@link ItemStack}
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param z the z coordinate
+     * @param x         the x coordinate
+     * @param y         the y coordinate
+     * @param z         the z coordinate
      */
-    public void renderTypeGlassTop(ItemStack itemStack, int x, int y, int z)
-    {
+    public void renderTypeGlassTop(ItemStack itemStack, int x, int y, int z) {
         if (data.isOpen(TE)) {
             itemStack = getOpenCover();
             renderBlockWithRotation(itemStack, x, y, z, 0.0D, 0.5D, 0.1875D, 1.0D, 1.0D, 0.25D, dir); // Back panel
             renderBlockWithRotation(itemStack, x, y, z, 0.0D, 0.5D, 0.125D, 0.125D, 1.0D, 0.1875D, dir);
-            renderBlockWithRotation(itemStack, x, y, z, 0.125D, 0.9375D, 0.125D, 0.875D, 1.0D, 0.1875D, dir); // Top center
-            renderBlockWithRotation(itemStack, x, y, z, 0.125D, 0.5D, 0.125D, 0.875D, 0.625D, 0.1875D, dir); // Bottom center
+            renderBlockWithRotation(itemStack, x, y, z, 0.125D, 0.9375D, 0.125D, 0.875D, 1.0D, 0.1875D, dir); // Top
+                                                                                                              // center
+            renderBlockWithRotation(itemStack, x, y, z, 0.125D, 0.5D, 0.125D, 0.875D, 0.625D, 0.1875D, dir); // Bottom
+                                                                                                             // center
             renderBlockWithRotation(itemStack, x, y, z, 0.875D, 0.5D, 0.125D, 1.0D, 1.0D, 0.1875D, dir);
         } else {
             if (data.isHost(TE)) {
@@ -157,12 +153,12 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
         }
     }
 
-    public void renderPanelsOpen(ItemStack itemStack, int x, int y, int z)
-    {
+    public void renderPanelsOpen(ItemStack itemStack, int x, int y, int z) {
         renderBlockWithRotation(itemStack, x, y, z, 0.0D, 0.5D, 0.1875D, 1.0D, 1.0D, 0.25D, dir); // Back panel
         renderBlockWithRotation(itemStack, x, y, z, 0.0D, 0.5D, 0.125D, 0.125D, 1.0D, 0.1875D, dir);
         renderBlockWithRotation(itemStack, x, y, z, 0.125D, 0.9375D, 0.125D, 0.875D, 1.0D, 0.1875D, dir); // Top center
-        renderBlockWithRotation(itemStack, x, y, z, 0.125D, 0.5D, 0.125D, 0.875D, 0.625D, 0.1875D, dir); // Bottom center
+        renderBlockWithRotation(itemStack, x, y, z, 0.125D, 0.5D, 0.125D, 0.875D, 0.625D, 0.1875D, dir); // Bottom
+                                                                                                         // center
         renderBlockWithRotation(itemStack, x, y, z, 0.875D, 0.5D, 0.125D, 1.0D, 1.0D, 0.1875D, dir);
     }
 
@@ -170,12 +166,11 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
      * Renders a door with glass on top and panel on bottom.
      *
      * @param itemStack the {@link ItemStack}
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param z the z coordinate
+     * @param x         the x coordinate
+     * @param y         the y coordinate
+     * @param z         the z coordinate
      */
-    public void renderPanelsGlassTop(ItemStack itemStack, int x, int y, int z)
-    {
+    public void renderPanelsGlassTop(ItemStack itemStack, int x, int y, int z) {
         if (data.isOpen(TE)) {
             renderPanelsOpen(getOpenCover(), x, y, z);
         } else {
@@ -193,12 +188,11 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
      * Renders a door with panels on top and bottom.
      *
      * @param itemStack the {@link ItemStack}
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param z the z coordinate
+     * @param x         the x coordinate
+     * @param y         the y coordinate
+     * @param z         the z coordinate
      */
-    public void renderPanels(ItemStack itemStack, int x, int y, int z)
-    {
+    public void renderPanels(ItemStack itemStack, int x, int y, int z) {
         if (data.isOpen(TE)) {
             renderPanelsOpen(getOpenCover(), x, y, z);
         } else {
@@ -212,16 +206,14 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
     }
 
     /**
-     * Renders a garage door with all glass panels except for the bottom,
-     * where it renders a glass top and panel bottom.
+     * Renders a garage door with all glass panels except for the bottom, where it renders a glass top and panel bottom.
      *
      * @param itemStack the {@link ItemStack}
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param z the z coordinate
+     * @param x         the x coordinate
+     * @param y         the y coordinate
+     * @param z         the z coordinate
      */
-    public void renderTypeGlass(ItemStack itemStack, int x, int y, int z)
-    {
+    public void renderTypeGlass(ItemStack itemStack, int x, int y, int z) {
         if (data.isBottommost(TE)) {
             renderPanelsGlassTop(itemStack, x, y, z);
         } else {
@@ -241,12 +233,11 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
      * Renders a siding garage door at coordinates with iron backing.
      *
      * @param itemStack the {@link ItemStack}
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param z the z coordinate
+     * @param x         the x coordinate
+     * @param y         the y coordinate
+     * @param z         the z coordinate
      */
-    public void renderTypeSiding(ItemStack itemStack, int x, int y, int z)
-    {
+    public void renderTypeSiding(ItemStack itemStack, int x, int y, int z) {
         if (data.isOpen(TE)) {
             suppressChiselDesign = suppressDyeColor = suppressOverlay = true;
             renderBlockWithRotation(iron, x, y, z, 0.0D, 0.5D, 0.1875D, 1.0D, 1.0D, 0.25D, dir);
@@ -265,13 +256,22 @@ public class BlockHandlerCarpentersGarageDoor extends BlockHandlerBase {
      * Renders a hidden garage door at coordinates.
      *
      * @param itemStack the {@link ItemStack}
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param z the z coordinate
+     * @param x         the x coordinate
+     * @param y         the y coordinate
+     * @param z         the z coordinate
      */
-    public void renderTypeHidden(ItemStack itemStack, int x, int y, int z)
-    {
-        renderBlockWithRotation(isOpen ? getOpenCover() : itemStack, x, y, z, 0.0D, data.isOpen(TE) ? 0.5D : 0.0D, 0.0D, 1.0D, 1.0D, 0.125D, dir);
+    public void renderTypeHidden(ItemStack itemStack, int x, int y, int z) {
+        renderBlockWithRotation(
+                isOpen ? getOpenCover() : itemStack,
+                x,
+                y,
+                z,
+                0.0D,
+                data.isOpen(TE) ? 0.5D : 0.0D,
+                0.0D,
+                1.0D,
+                1.0D,
+                0.125D,
+                dir);
     }
-
 }
