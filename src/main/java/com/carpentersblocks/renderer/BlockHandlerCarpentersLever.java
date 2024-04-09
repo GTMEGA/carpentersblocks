@@ -7,23 +7,31 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
+
 import com.carpentersblocks.block.BlockCarpentersLever;
 import com.carpentersblocks.block.BlockCoverable;
 import com.carpentersblocks.data.Lever;
 import com.carpentersblocks.data.Lever.Axis;
-import com.carpentersblocks.renderer.helper.VertexHelper;
 import com.carpentersblocks.util.BlockProperties;
 import com.carpentersblocks.util.registry.BlockRegistry;
 import com.carpentersblocks.util.registry.IconRegistry;
+import com.gtnewhorizons.angelica.api.ThreadSafeISBRHFactory;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class BlockHandlerCarpentersLever extends BlockHandlerBase {
 
+    private static final ThreadLocal<BlockHandlerCarpentersLever> threadRenderer = ThreadLocal
+            .withInitial(BlockHandlerCarpentersLever::new);
+
+    public ThreadSafeISBRHFactory newInstance() {
+        return threadRenderer.get();
+    }
+
     @Override
-    public boolean shouldRender3DInInventory(int modelId)
-    {
+    public boolean shouldRender3DInInventory(int modelId) {
         return false;
     }
 
@@ -31,8 +39,7 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
     /**
      * Override to provide custom icons.
      */
-    protected IIcon getUniqueIcon(ItemStack itemStack, int side, IIcon icon)
-    {
+    protected IIcon getUniqueIcon(ItemStack itemStack, int side, IIcon icon) {
         Block block = BlockProperties.toBlock(itemStack);
 
         if (block instanceof BlockCoverable) {
@@ -46,8 +53,7 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
     /**
      * Renders block
      */
-    protected void renderCarpentersBlock(int x, int y, int z)
-    {
+    protected void renderCarpentersBlock(int x, int y, int z) {
         renderBlocks.renderAllFaces = true;
         renderLever(getCoverForRendering(), x, y, z);
         renderBlocks.renderAllFaces = false;
@@ -56,8 +62,7 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
     /**
      * Renders lever.
      */
-    private void renderLever(ItemStack itemStack, int x, int y, int z)
-    {
+    private void renderLever(ItemStack itemStack, int x, int y, int z) {
         /* Set block bounds and render lever base. */
 
         BlockCarpentersLever blockRef = (BlockCarpentersLever) BlockRegistry.blockCarpentersLever;
@@ -74,8 +79,7 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
     /**
      * Renders the lever handle.
      */
-    private void renderLeverHandle(int x, int y, int z)
-    {
+    private void renderLeverHandle(int x, int y, int z) {
         Tessellator tessellator = Tessellator.instance;
         tessellator.setBrightness(Blocks.dirt.getMixedBrightnessForBlock(renderBlocks.blockAccess, x, y, z));
         tessellator.setColorOpaque_F(1.0F, 1.0F, 1.0F);
@@ -85,44 +89,39 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
         boolean toggleState = data.getState(TE) == data.STATE_ON;
         boolean rotateLever = data.getAxis(TE) == Axis.X;
 
-        IIcon icon = renderBlocks.hasOverrideBlockTexture() ? renderBlocks.overrideBlockTexture : IconRegistry.icon_lever;
+        IIcon icon = renderBlocks.hasOverrideBlockTexture() ? renderBlocks.overrideBlockTexture
+                : IconRegistry.icon_lever;
 
         double uMin = icon.getMinU();
         double uMax = icon.getMaxU();
         double vMin = icon.getMinV();
         double vMax = icon.getMaxV();
 
-        Vec3[] vector = {
-            Vec3.createVectorHelper(-0.0625F,   0.0D, -0.0625F),
-            Vec3.createVectorHelper( 0.0625F,   0.0D, -0.0625F),
-            Vec3.createVectorHelper( 0.0625F,   0.0D,  0.0625F),
-            Vec3.createVectorHelper(-0.0625F,   0.0D,  0.0625F),
-            Vec3.createVectorHelper(-0.0625F, 0.625F, -0.0625F),
-            Vec3.createVectorHelper( 0.0625F, 0.625F, -0.0625F),
-            Vec3.createVectorHelper( 0.0625F, 0.625F,  0.0625F),
-            Vec3.createVectorHelper(-0.0625F, 0.625F,  0.0625F)
-        };
+        Vec3[] vector = { Vec3.createVectorHelper(-0.0625F, 0.0D, -0.0625F),
+                Vec3.createVectorHelper(0.0625F, 0.0D, -0.0625F), Vec3.createVectorHelper(0.0625F, 0.0D, 0.0625F),
+                Vec3.createVectorHelper(-0.0625F, 0.0D, 0.0625F), Vec3.createVectorHelper(-0.0625F, 0.625F, -0.0625F),
+                Vec3.createVectorHelper(0.0625F, 0.625F, -0.0625F), Vec3.createVectorHelper(0.0625F, 0.625F, 0.0625F),
+                Vec3.createVectorHelper(-0.0625F, 0.625F, 0.0625F) };
 
         /* Set up lever handle rotation. */
 
-        for (int vecCount = 0; vecCount < 8; ++vecCount)
-        {
+        for (int vecCount = 0; vecCount < 8; ++vecCount) {
             if (toggleState) {
                 vector[vecCount].zCoord -= 0.0625D;
-                vector[vecCount].rotateAroundX((float)Math.PI * 2F / 9F);
+                vector[vecCount].rotateAroundX((float) Math.PI * 2F / 9F);
             } else {
                 vector[vecCount].zCoord += 0.0625D;
-                vector[vecCount].rotateAroundX(-((float)Math.PI * 2F / 9F));
+                vector[vecCount].rotateAroundX(-((float) Math.PI * 2F / 9F));
             }
 
             if (dir.ordinal() < 2) {
 
                 if (dir.equals(ForgeDirection.DOWN)) {
-                    vector[vecCount].rotateAroundZ((float)Math.PI);
+                    vector[vecCount].rotateAroundZ((float) Math.PI);
                 }
 
                 if (rotateLever) {
-                    vector[vecCount].rotateAroundY((float)Math.PI / 2F);
+                    vector[vecCount].rotateAroundY((float) Math.PI / 2F);
                 }
 
                 if (dir.equals(ForgeDirection.UP)) {
@@ -138,20 +137,20 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
             } else {
 
                 vector[vecCount].yCoord -= 0.375D;
-                vector[vecCount].rotateAroundX((float)Math.PI / 2F);
+                vector[vecCount].rotateAroundX((float) Math.PI / 2F);
 
                 switch (dir) {
                     case NORTH:
                         vector[vecCount].rotateAroundY(0.0F);
                         break;
                     case SOUTH:
-                        vector[vecCount].rotateAroundY((float)Math.PI);
+                        vector[vecCount].rotateAroundY((float) Math.PI);
                         break;
                     case WEST:
-                        vector[vecCount].rotateAroundY((float)Math.PI / 2F);
+                        vector[vecCount].rotateAroundY((float) Math.PI / 2F);
                         break;
                     case EAST:
-                        vector[vecCount].rotateAroundY(-((float)Math.PI / 2F));
+                        vector[vecCount].rotateAroundY(-((float) Math.PI / 2F));
                         break;
                     default: {}
                 }
@@ -159,7 +158,6 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
                 vector[vecCount].xCoord += x + 0.5D;
                 vector[vecCount].yCoord += y + 0.5F;
                 vector[vecCount].zCoord += z + 0.5D;
-
             }
         }
 
@@ -168,8 +166,7 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
         Vec3 vertex3 = null;
         Vec3 vertex4 = null;
 
-        for (int idx = 0; idx < 6; ++idx)
-        {
+        for (int idx = 0; idx < 6; ++idx) {
             if (idx == 0) {
                 uMin = icon.getInterpolatedU(7.0D);
                 vMin = icon.getInterpolatedV(6.0D);
@@ -225,11 +222,10 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
                     break;
             }
 
-            VertexHelper.drawVertex(renderBlocks, vertex1.xCoord, vertex1.yCoord, vertex1.zCoord, uMin, vMax);
-            VertexHelper.drawVertex(renderBlocks, vertex2.xCoord, vertex2.yCoord, vertex2.zCoord, uMax, vMax);
-            VertexHelper.drawVertex(renderBlocks, vertex3.xCoord, vertex3.yCoord, vertex3.zCoord, uMax, vMin);
-            VertexHelper.drawVertex(renderBlocks, vertex4.xCoord, vertex4.yCoord, vertex4.zCoord, uMin, vMin);
+            renderHelper.drawVertex(renderBlocks, vertex1.xCoord, vertex1.yCoord, vertex1.zCoord, uMin, vMax);
+            renderHelper.drawVertex(renderBlocks, vertex2.xCoord, vertex2.yCoord, vertex2.zCoord, uMax, vMax);
+            renderHelper.drawVertex(renderBlocks, vertex3.xCoord, vertex3.yCoord, vertex3.zCoord, uMax, vMin);
+            renderHelper.drawVertex(renderBlocks, vertex4.xCoord, vertex4.yCoord, vertex4.zCoord, uMin, vMin);
         }
     }
-
 }

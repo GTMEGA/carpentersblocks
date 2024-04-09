@@ -1,27 +1,33 @@
 package com.carpentersblocks.renderer;
 
+import com.carpentersblocks.block.BlockCoverable;
+import com.carpentersblocks.util.BlockProperties;
+import com.carpentersblocks.util.flowerpot.FlowerPotHandler;
+import com.carpentersblocks.util.flowerpot.FlowerPotProperties;
+import com.carpentersblocks.util.handler.DesignHandler;
+import com.carpentersblocks.util.registry.IconRegistry;
+import com.gtnewhorizons.angelica.api.ThreadSafeISBRHFactory;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCrops;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import com.carpentersblocks.block.BlockCoverable;
-import com.carpentersblocks.renderer.helper.RenderHelperFlowerPot;
-import com.carpentersblocks.util.BlockProperties;
-import com.carpentersblocks.util.flowerpot.FlowerPotHandler;
-import com.carpentersblocks.util.flowerpot.FlowerPotProperties;
-import com.carpentersblocks.util.handler.DesignHandler;
-import com.carpentersblocks.util.registry.IconRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
 
+    private static final ThreadLocal<BlockHandlerCarpentersFlowerPot> threadRenderer = ThreadLocal
+            .withInitial(BlockHandlerCarpentersFlowerPot::new);
+
+    public ThreadSafeISBRHFactory newInstance() {
+        return threadRenderer.get();
+    }
+
     @Override
-    public boolean shouldRender3DInInventory(int modelId)
-    {
+    public boolean shouldRender3DInInventory(int modelId) {
         return false;
     }
 
@@ -29,8 +35,7 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
     /**
      * Override to provide custom icons.
      */
-    protected IIcon getUniqueIcon(ItemStack itemStack, int side, IIcon icon)
-    {
+    protected IIcon getUniqueIcon(ItemStack itemStack, int side, IIcon icon) {
         Block block = BlockProperties.toBlock(itemStack);
 
         if (block instanceof BlockCoverable) {
@@ -46,8 +51,7 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
     /**
      * Renders block
      */
-    protected void renderCarpentersBlock(int x, int y, int z)
-    {
+    protected void renderCarpentersBlock(int x, int y, int z) {
         renderBlocks.renderAllFaces = true;
 
         ItemStack itemStack = getCoverForRendering();
@@ -82,10 +86,10 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
     /**
      * Renders flower pot
      */
-    public boolean renderPot(ItemStack itemStack, int x, int y, int z)
-    {
+    public boolean renderPot(ItemStack itemStack, int x, int y, int z) {
         if (TE.hasDesign()) {
-            IIcon designIcon = IconRegistry.icon_design_flower_pot.get(DesignHandler.listFlowerPot.indexOf(TE.getDesign()));
+            IIcon designIcon = IconRegistry.icon_design_flower_pot
+                    .get(DesignHandler.listFlowerPot.indexOf(TE.getDesign()));
             setIconOverride(6, designIcon);
         }
 
@@ -122,8 +126,7 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
     /**
      * Renders soil
      */
-    public boolean renderSoil(ItemStack itemStack, int x, int y, int z)
-    {
+    public boolean renderSoil(ItemStack itemStack, int x, int y, int z) {
         renderBlocks.setRenderBounds(0.375D, 0.0625D, 0.375D, 0.625D, 0.25D, 0.625D);
         renderBlock(itemStack, x, y, z);
 
@@ -133,11 +136,9 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
     /**
      * Renders plant
      */
-    public boolean renderPlant(ItemStack itemStack, int x, int y, int z)
-    {
+    public boolean renderPlant(ItemStack itemStack, int x, int y, int z) {
         Block block = FlowerPotProperties.toBlock(itemStack);
-        if (block.getRenderBlockPass() != renderPass)
-        {
+        if (block.getRenderBlockPass() != renderPass) {
             return false;
         }
 
@@ -150,34 +151,34 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
         Tessellator tessellator = Tessellator.instance;
         tessellator.addTranslation(0.0F, 0.25F, 0.0F);
 
-        RenderHelperFlowerPot.setPlantColor(this, itemStack, x, y, z);
+        renderHelper.setPlantColor(this, itemStack, x, y, z);
 
         IIcon icon = block.getIcon(2, itemStack.getItemDamage());
 
         switch (FlowerPotHandler.getPlantProfile(itemStack)) {
             case DOUBLEPLANT:
-                RenderHelperFlowerPot.renderBlockDoublePlant(TE, renderBlocks, itemStack, x, y, z, false);
+                renderHelper.renderBlockDoublePlant(TE, renderBlocks, itemStack, x, y, z, false);
                 break;
             case THIN_DOUBLEPLANT:
-                RenderHelperFlowerPot.renderBlockDoublePlant(TE, renderBlocks, itemStack, x, y, z, true);
+                renderHelper.renderBlockDoublePlant(TE, renderBlocks, itemStack, x, y, z, true);
                 break;
             case REDUCED_SCALE_YP:
-                RenderHelperFlowerPot.renderPlantCrossedSquares(renderBlocks, block, icon, x, y, z, 0.75F, false);
+                renderHelper.renderPlantCrossedSquares(renderBlocks, block, icon, x, y, z, 0.75F, false);
                 break;
             case REDUCED_SCALE_YN:
-                RenderHelperFlowerPot.renderPlantCrossedSquares(renderBlocks, block, icon, x, y, z, 0.75F, true);
+                renderHelper.renderPlantCrossedSquares(renderBlocks, block, icon, x, y, z, 0.75F, true);
                 break;
             case TRUE_SCALE:
-                RenderHelperFlowerPot.renderPlantCrossedSquares(renderBlocks, block, icon, x, y, z, 1.0F, false);
+                renderHelper.renderPlantCrossedSquares(renderBlocks, block, icon, x, y, z, 1.0F, false);
                 break;
             case THIN_YP:
-                RenderHelperFlowerPot.renderPlantThinCrossedSquares(renderBlocks, block, icon, x, y, z, false);
+                renderHelper.renderPlantThinCrossedSquares(renderBlocks, block, icon, x, y, z, false);
                 break;
             case THIN_YN:
-                RenderHelperFlowerPot.renderPlantThinCrossedSquares(renderBlocks, block, icon, x, y, z, true);
+                renderHelper.renderPlantThinCrossedSquares(renderBlocks, block, icon, x, y, z, true);
                 break;
             case CACTUS:
-                RenderHelperFlowerPot.drawPlantCactus(lightingHelper, renderBlocks, itemStack, x, y, z);
+                renderHelper.drawPlantCactus(lightingHelper, renderBlocks, itemStack, x, y, z);
                 break;
             case LEAVES:
                 drawStackedBlocks(itemStack, x, y, z);
@@ -192,8 +193,7 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
     /**
      * Draws stacked blocks for leaves or mod cacti.
      */
-    private void drawStackedBlocks(ItemStack itemStack, int x, int y, int z)
-    {
+    private void drawStackedBlocks(ItemStack itemStack, int x, int y, int z) {
         TE.setMetadata(itemStack.getItemDamage());
         renderBlocks.setRenderBounds(0.375F, 0.0D, 0.375F, 0.625F, 0.25D, 0.625F);
         renderBlock(itemStack, x, y, z);
@@ -204,5 +204,4 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
         renderBlocks.setRenderBounds(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
         TE.restoreMetadata();
     }
-
 }
