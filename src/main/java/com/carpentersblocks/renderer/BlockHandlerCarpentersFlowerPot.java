@@ -194,7 +194,6 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
      * Draws stacked blocks for leaves or mod cacti.
      */
     private void drawStackedBlocks(ItemStack itemStack, int x, int y, int z) {
-        TE.setMetadata(itemStack.getItemDamage());
         renderBlocks.setRenderBounds(0.375F, 0.0D, 0.375F, 0.625F, 0.25D, 0.625F);
         renderBlock(itemStack, x, y, z);
         renderBlocks.setRenderBounds(0.375F, 0.25D, 0.375F, 0.625F, 0.50D, 0.625F);
@@ -202,6 +201,5 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
         renderBlocks.setRenderBounds(0.375F, 0.50D, 0.375F, 0.625F, 0.75D, 0.625F);
         renderBlock(itemStack, x, y, z);
         renderBlocks.setRenderBounds(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
-        TE.restoreMetadata();
     }
 }

@@ -18,6 +18,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -31,6 +32,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class BlockCarpentersFlowerPot extends BlockCoverable {
 
@@ -316,16 +318,13 @@ public class BlockCarpentersFlowerPot extends BlockCoverable {
     /**
      * Triggered whenever an entity collides with this block (enters into the block). Args: world, x, y, z, entity
      */
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity)
-    {
+    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
         TEBase TE = getTileEntity(world, x, y, z);
 
-        if (TE != null && TE instanceof TECarpentersFlowerPot) {
+        if (TE instanceof TECarpentersFlowerPot) {
             if (TE.hasAttribute(TE.ATTR_PLANT)) {
                 ItemStack itemStack = TE.getAttribute(TE.ATTR_PLANT);
-                TE.setMetadata(itemStack.getItemDamage());
                 FlowerPotProperties.toBlock(itemStack).onEntityCollidedWithBlock(world, x, y, z, entity);
-                TE.restoreMetadata();
             }
         }
 
@@ -351,32 +350,20 @@ public class BlockCarpentersFlowerPot extends BlockCoverable {
     /**
      * A randomly called display update to be able to add particles or other items for display
      */
-    public void randomDisplayTick(World world, int x, int y, int z, Random random)
-    {
+    public void randomDisplayTick(World world, int x, int y, int z, Random random) {
         TEBase TE = getTileEntity(world, x, y, z);
 
         if (TE != null && TE instanceof TECarpentersFlowerPot) {
 
-            /*
-             * Metadata at coordinates are for the base cover only.
-             * We need to set it for appropriate attributes in order
-             * to get accurate results.
-             */
-
             if (TE.hasAttribute(TE.ATTR_PLANT)) {
                 ItemStack itemStack = TE.getAttribute(TE.ATTR_PLANT);
-                TE.setMetadata(itemStack.getItemDamage());
                 FlowerPotProperties.toBlock(itemStack).randomDisplayTick(world, x, y, z, random);
-                TE.restoreMetadata();
             }
 
             if (TE.hasAttribute(TE.ATTR_SOIL)) {
                 ItemStack itemStack = TE.getAttribute(TE.ATTR_SOIL);
-                TE.setMetadata(itemStack.getItemDamage());
                 BlockProperties.toBlock(itemStack).randomDisplayTick(world, x, y, z, random);
-                TE.restoreMetadata();
             }
-
         }
 
         super.randomDisplayTick(world, x, y, z, random);

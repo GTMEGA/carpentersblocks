@@ -6,8 +6,10 @@ import com.carpentersblocks.util.BlockProperties;
 import com.carpentersblocks.util.handler.DesignHandler;
 import com.carpentersblocks.util.protection.IProtected;
 import com.carpentersblocks.util.protection.ProtectedObject;
+import com.carpentersblocks.util.registry.FeatureRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,7 +28,6 @@ import java.util.Map;
 import java.util.Random;
 
 public class TEBase extends TileEntity implements IProtected {
-
     public static final String TAG_ATTR = "cbAttribute";
     public static final String TAG_ATTR_LIST = "cbAttrList";
     public static final String TAG_METADATA = "cbMetadata";
@@ -46,7 +47,7 @@ public class TEBase extends TileEntity implements IProtected {
     /**
      * Map holding all block attributes.
      */
-    protected Map<Byte, Attribute> cbAttrMap = new HashMap<Byte, Attribute>();
+    protected Map<Byte, Attribute> cbAttrMap = new HashMap<>();
 
     /**
      * Chisel design for each side and base block.
@@ -68,20 +69,12 @@ public class TEBase extends TileEntity implements IProtected {
      */
     protected String cbOwner = "";
 
-    /**
-     * Indicates lighting calculations are underway.
-     **/
-    protected static boolean calcLighting = false;
-
-    /**
-     * Holds last stored metadata.
-     **/
-    private int tempMetadata;
+    private final Object LIGHT_UPDATE_LOCK = new Object();
 
     /**
      * The most recent light value of block.
      **/
-    private int lightValue = -1;
+    private volatile int lightValue = -1;
 
     /**
      * Comment
@@ -118,7 +111,7 @@ public class TEBase extends TileEntity implements IProtected {
         }
 
         // Block either loaded or changed, update lighting and render state
-        updateWorldAndLighting();
+        updateWorldAndLighting(true);
     }
 
     @Override
@@ -325,7 +318,7 @@ public class TEBase extends TileEntity implements IProtected {
             getWorldObj().playAuxSFX(2005, xCoord, yCoord, zCoord, 0);
         }
 
-        updateWorldAndLighting();
+        updateWorldAndLighting(true);
         markDirty();
     }
 
@@ -338,7 +331,7 @@ public class TEBase extends TileEntity implements IProtected {
      */
     public void onAttrDropped(byte attrId) {
         cbAttrMap.remove(attrId);
-        updateWorldAndLighting();
+        updateWorldAndLighting(true);
         markDirty();
     }
 
@@ -456,25 +449,6 @@ public class TEBase extends TileEntity implements IProtected {
         return setDesign(DesignHandler.getPrev(getBlockDesignType(), cbDesign));
     }
 
-    /**
-     * Sets block metadata without causing a render update.
-     * <p>
-     * As part of mimicking a cover block, the metadata must be changed to better represent the cover properties.
-     * <p>
-     * This is normally followed up by calling {@link setMetadataFromCover}.
-     */
-    public void setMetadata(int metadata) {
-        tempMetadata = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
-        getWorldObj().setBlockMetadataWithNotify(xCoord, yCoord, zCoord, metadata, 4);
-    }
-
-    /**
-     * Restores default metadata for block from base cover.
-     */
-    public void restoreMetadata() {
-        getWorldObj().setBlockMetadataWithNotify(xCoord, yCoord, zCoord, tempMetadata, 4);
-    }
-
     /////////////////////////////////////////////////////////////
     // Code below implemented strictly for light updates
     /////////////////////////////////////////////////////////////
@@ -487,9 +461,7 @@ public class TEBase extends TileEntity implements IProtected {
      * @return the light value
      */
     public int getLightValue() {
-        if (lightValue == -1 && !calcLighting) {
-            updateCachedLighting();
-        }
+        updateDynamicLight();
         return lightValue;
     }
 
@@ -504,57 +476,53 @@ public class TEBase extends TileEntity implements IProtected {
      * @return a light value from 0 to 15
      */
     protected int getDynamicLightValue() {
-        int value = 0;
-
-        if (FeatureRegistry.enableIllumination && hasAttribute(ATTR_ILLUMINATOR)) {
+        if (FeatureRegistry.enableIllumination && hasAttribute(ATTR_ILLUMINATOR))
             return 15;
-        } else {
+
+        synchronized (LIGHT_UPDATE_LOCK) {
+            int newLightValue = 0;
             // Find greatest light output from attributes
-            calcLighting = true;
-            Iterator it = cbAttrMap.entrySet().iterator();
+            Iterator<Map.Entry<Byte, Attribute>> it = cbAttrMap.entrySet().iterator();
             while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry) it.next();
-                ItemStack itemStack = BlockProperties
-                        .getCallableItemStack(((Attribute) pair.getValue()).getItemStack());
+                Map.Entry<Byte, Attribute> pair = it.next();
+                ItemStack itemStack = BlockProperties.getCallableItemStack(pair.getValue().getItemStack());
                 Block block = BlockProperties.toBlock(itemStack);
 
-                if (block != Blocks.air) {
+                if (block == Blocks.air)
+                    continue;
 
-                    // Determine metadata-sensitive light value (usually recursive, and not useful)
-                    setMetadata(itemStack.getItemDamage());
-                    int sensitiveLight = block.getLightValue(getWorldObj(), xCoord, yCoord, zCoord);
-                    restoreMetadata();
-
-                    if (sensitiveLight > 0) {
-                        value = Math.max(value, sensitiveLight);
-                    } else {
-                        // Grab default light value for block
-                        value = Math.max(value, block.getLightValue());
-                    }
+                int blockLightValue = block.getLightValue();
+                if (blockLightValue > 0) {
+                    newLightValue = Math.max(newLightValue, blockLightValue);
+                } else {
+                    // Grab default light value for block
+                    newLightValue = Math.max(newLightValue, block.getLightValue());
                 }
             }
-            calcLighting = false;
+            return newLightValue;
         }
-
-        return value;
-    }
-
-    /**
-     * Updates light value and world lightmap.
-     */
-    private void updateCachedLighting() {
-        lightValue = getDynamicLightValue();
-        getWorldObj().func_147451_t(xCoord, yCoord, zCoord); // Updates block lightmap, should help with spawns
     }
 
     /**
      * Performs world update and refreshes lighting.
      */
-    private void updateWorldAndLighting() {
+    private void updateWorldAndLighting(boolean resetLighting) {
         World world = getWorldObj();
-        if (world != null) {
-            updateCachedLighting();
-            world.markBlockForUpdate(xCoord, yCoord, zCoord);
-        }
+        if (world == null)
+            return;
+
+        if(resetLighting)
+            lightValue = -1;
+
+        if (updateDynamicLight())
+            getWorldObj().func_147451_t(xCoord, yCoord, zCoord); // Updates block lightmap, should help with spawns
+        world.markBlockForUpdate(xCoord, yCoord, zCoord);
+    }
+
+    private boolean updateDynamicLight() {
+        if (lightValue != -1)
+            return false;
+        lightValue = getDynamicLightValue();
+        return true;
     }
 }

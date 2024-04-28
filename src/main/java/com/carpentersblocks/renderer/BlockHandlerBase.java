@@ -680,11 +680,7 @@ public abstract class BlockHandlerBase implements ISimpleBlockRenderingHandler, 
             block = Blocks.dirt;
         }
 
-        TE.setMetadata(metadata);
-        int color = OptifineHandler.enableOptifineIntegration
-                ? OptifineHandler.getColorMultiplier(block, renderBlocks.blockAccess, x, y, z)
-                : block.colorMultiplier(renderBlocks.blockAccess, x, y, z);
-        TE.restoreMetadata();
+        int color = block.getRenderColor(metadata);
 
         if (block.equals(Blocks.grass) && !isPositiveFace(side) && !icon.equals(BlockGrass.getIconSideOverlay())) {
             color = 16777215;

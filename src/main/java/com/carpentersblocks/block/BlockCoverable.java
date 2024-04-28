@@ -49,6 +49,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class BlockCoverable extends BlockContainer {
 
@@ -1274,7 +1275,6 @@ public class BlockCoverable extends BlockContainer {
      * Determines if this block should render in this pass.
      */
     public boolean canRenderInPass(int pass) {
-        ForgeHooksClient.setRenderPass(pass);
         return true;
     }
 
@@ -1350,14 +1350,6 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public boolean getUseNeighborBrightness() {
         return true;
-    }
-
-    @Override
-    /**
-     * Called whenever the block is added into the world. Args: world, x, y, z
-     */
-    public void onBlockAdded(World world, int x, int y, int z) {
-        world.setTileEntity(x, y, z, createNewTileEntity(world, 0));
     }
 
     @Override

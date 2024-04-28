@@ -35,12 +35,7 @@ public class FlowerPotProperties {
         ItemStack itemStack = TE.getAttribute(TE.ATTR_PLANT);
         Block block = toBlock(itemStack);
 
-        TE.setMetadata(itemStack.getItemDamage());
-        int color1 = block.getBlockColor();
-        int color2 = block.colorMultiplier(TE.getWorldObj(), TE.xCoord, TE.yCoord, TE.zCoord);
-        TE.restoreMetadata();
-
-        return color1 < color2 ? color1 : color2;
+        return block.getRenderColor(itemStack.getItemDamage());
     }
 
     @SideOnly(Side.CLIENT)
