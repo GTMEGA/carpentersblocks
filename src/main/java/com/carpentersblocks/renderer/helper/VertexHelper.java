@@ -115,7 +115,7 @@ public class VertexHelper {
      * Adds vertex to Tessellator and increments draw count.
      */
     public void drawVertex(RenderBlocks renderBlocks, double x, double y, double z, double u, double v) {
-        Tessellator.instance.addVertexWithUV(x, y, z, u, v);
+        TessProvider.getTess().addVertexWithUV(x, y, z, u, v);
         ++vertexCount;
     }
 
@@ -135,7 +135,7 @@ public class VertexHelper {
      * @see {@link #startDrawing(int)}
      */
     public void setupVertex(RenderBlocks renderBlocks, double x, double y, double z, double u, double v, int vertex) {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
 
         if (renderBlocks != null && renderBlocks.enableAO) {
 

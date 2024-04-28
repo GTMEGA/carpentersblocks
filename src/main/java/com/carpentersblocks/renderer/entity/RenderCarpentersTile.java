@@ -1,5 +1,6 @@
 package com.carpentersblocks.renderer.entity;
 
+import com.carpentersblocks.renderer.helper.TessProvider;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
@@ -37,7 +38,7 @@ public class RenderCarpentersTile extends Render {
     private void render(EntityCarpentersTile entity, int x, int y, int z)
     {
         RenderBlocks renderBlocks = RenderBlocks.getInstance();
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         tessellator.startDrawingQuads();
 
         double bounds[] = entity.getBounds();

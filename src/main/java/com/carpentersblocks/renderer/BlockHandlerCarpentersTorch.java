@@ -1,5 +1,6 @@
 package com.carpentersblocks.renderer;
 
+import com.carpentersblocks.renderer.helper.TessProvider;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.Blocks;
@@ -78,7 +79,7 @@ public class BlockHandlerCarpentersTorch extends BlockHandlerBase {
 
         /* Render torch head. */
 
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         tessellator.setBrightness(
                 srcBlock.getMixedBrightnessForBlock(renderBlocks.blockAccess, TE.xCoord, TE.yCoord, TE.zCoord));
         tessellator.setColorOpaque_F(1.0F, 1.0F, 1.0F);

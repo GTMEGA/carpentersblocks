@@ -1,6 +1,7 @@
 package com.carpentersblocks.renderer;
 
 import com.carpentersblocks.block.BlockCoverable;
+import com.carpentersblocks.renderer.helper.TessProvider;
 import com.carpentersblocks.util.BlockProperties;
 import com.carpentersblocks.util.flowerpot.FlowerPotHandler;
 import com.carpentersblocks.util.flowerpot.FlowerPotProperties;
@@ -148,7 +149,7 @@ public class BlockHandlerCarpentersFlowerPot extends BlockHandlerBase {
             itemStack.setItemDamage(7);
         }
 
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         tessellator.addTranslation(0.0F, 0.25F, 0.0F);
 
         renderHelper.setPlantColor(this, itemStack, x, y, z);

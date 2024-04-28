@@ -2,10 +2,7 @@ package com.carpentersblocks.renderer;
 
 import com.carpentersblocks.block.BlockCoverable;
 import com.carpentersblocks.data.Slope;
-import com.carpentersblocks.renderer.helper.LightingHelper;
-import com.carpentersblocks.renderer.helper.RenderHelper;
-import com.carpentersblocks.renderer.helper.RoutableFluidsHelper;
-import com.carpentersblocks.renderer.helper.VertexHelper;
+import com.carpentersblocks.renderer.helper.*;
 import com.carpentersblocks.tileentity.TEBase;
 import com.carpentersblocks.util.BlockProperties;
 import com.carpentersblocks.util.handler.DesignHandler;
@@ -72,7 +69,7 @@ public abstract class BlockHandlerBase implements ISimpleBlockRenderingHandler, 
 
     @Override
     public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderBlocks) {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         GL11.glRotatef(90.0F, 0.0F, 1.0F, 0.0F);
         GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
         tessellator.startDrawingQuads();

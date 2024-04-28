@@ -167,7 +167,7 @@ public class LightingHelper {
      */
     public void setupColor(int x, int y, int z, int side, int hexColor, IIcon icon)
     {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         float lightness = hasLightnessOverride ? lightnessOverride : LIGHTNESS[side];
 
         if (ShadersHandler.enableShadersModCoreIntegration && !ShadersHandler.oldLighting) {

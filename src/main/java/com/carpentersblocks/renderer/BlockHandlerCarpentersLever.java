@@ -1,5 +1,6 @@
 package com.carpentersblocks.renderer;
 
+import com.carpentersblocks.renderer.helper.TessProvider;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.init.Blocks;
@@ -80,7 +81,7 @@ public class BlockHandlerCarpentersLever extends BlockHandlerBase {
      * Renders the lever handle.
      */
     private void renderLeverHandle(int x, int y, int z) {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         tessellator.setBrightness(Blocks.dirt.getMixedBrightnessForBlock(renderBlocks.blockAccess, x, y, z));
         tessellator.setColorOpaque_F(1.0F, 1.0F, 1.0F);
 

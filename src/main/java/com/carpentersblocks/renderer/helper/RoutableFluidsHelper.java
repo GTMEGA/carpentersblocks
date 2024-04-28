@@ -185,7 +185,7 @@ public class RoutableFluidsHelper {
      */
     public static void renderLiquidSurface(TEBase TE, RenderBlocks renderBlocks, ItemStack itemStack, int x, int y, int z)
     {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         Block block = BlockProperties.toBlock(itemStack);
         Material material = block.getMaterial();
         double offset = 0.0010000000474974513D;

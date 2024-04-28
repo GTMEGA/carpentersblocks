@@ -12,6 +12,7 @@ import static com.carpentersblocks.renderer.helper.VertexHelper.TOP_RIGHT;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.carpentersblocks.renderer.helper.TessProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.material.Material;
@@ -121,7 +122,7 @@ public class BlockHandlerCarpentersSlope extends BlockHandlerSloped {
 
     @Override
     public void renderInventoryBlock(Block block, int metadata, int modelID, RenderBlocks renderBlocks) {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         GL11.glRotatef(90.0F, 0.0F, 1.0F, 0.0F);
         GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
 

@@ -1827,7 +1827,7 @@ public class RenderHelper extends VertexHelper {
      */
     public void setPlantColor(BlockHandlerBase blockHandler, ItemStack itemStack, int x, int y, int z) {
         Block block = FlowerPotProperties.toBlock(itemStack);
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
 
         float[] rgb = LightingHelper
                 .getRGB(blockHandler.getBlockColor(block, itemStack.getItemDamage(), x, y, z, 1, null));
@@ -1849,7 +1849,7 @@ public class RenderHelper extends VertexHelper {
             int z, boolean thin) {
         BlockDoublePlant block = (BlockDoublePlant) FlowerPotProperties.toBlock(itemStack);
 
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         tessellator.setBrightness(block.getMixedBrightnessForBlock(renderBlocks.blockAccess, x, y, z));
 
         boolean thinPlant = itemStack.getUnlocalizedName().equals("tile.doublePlant.grass");
@@ -1928,7 +1928,7 @@ public class RenderHelper extends VertexHelper {
      */
     public boolean renderPlantCrossedSquares(RenderBlocks renderBlocks, Block block, IIcon icon, int x, int y, int z,
             float scale, boolean flip_vertical) {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         tessellator.setBrightness(block.getMixedBrightnessForBlock(renderBlocks.blockAccess, x, y, z));
 
         double uMin = icon.getMinU();
@@ -1972,7 +1972,7 @@ public class RenderHelper extends VertexHelper {
      */
     public void renderPlantThinCrossedSquares(RenderBlocks renderBlocks, Block block, IIcon icon, int x, int y, int z,
             boolean flip_vertical) {
-        Tessellator tessellator = Tessellator.instance;
+        Tessellator tessellator = TessProvider.getTess();
         tessellator.setBrightness(block.getMixedBrightnessForBlock(renderBlocks.blockAccess, x, y, z));
 
         double uMin = icon.getInterpolatedU(0.0D);
