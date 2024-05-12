@@ -47,7 +47,7 @@ public class RoutableFluidsHelper {
             try {
                 sun.reflect.Reflection.getCallerClass(2);
                 callMethod = CALLER_SUN;
-            } catch (Exception E) {
+            } catch (Exception | NoClassDefFoundError E) {
                 try {
                     new SecurityManager() { Class clazz = getClassContext()[2]; };
                     callMethod = CALLER_SEC;
