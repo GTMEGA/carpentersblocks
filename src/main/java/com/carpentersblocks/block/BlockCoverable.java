@@ -929,8 +929,7 @@ public class BlockCoverable extends BlockContainer {
 
         if (itemStack != null) {
             Item item = itemStack.getItem();
-            return entityPlayer.capabilities.isCreativeMode && item != null
-                   && (item instanceof ICarpentersHammer || item instanceof ICarpentersChisel);
+            return entityPlayer.capabilities.isCreativeMode && (item instanceof ICarpentersHammer || item instanceof ICarpentersChisel);
         }
 
         return false;
@@ -1010,7 +1009,8 @@ public class BlockCoverable extends BlockContainer {
      */
     @Override
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
-        ArrayList<ItemStack> ret = super.getDrops(world, x, y, z, metadata, fortune); // Add block item drop
+        ArrayList<ItemStack> ret = new ArrayList<>();
+//       ret.addAll(super.getDrops(world, x, y, z, metadata, fortune)); // Add block item drop
         TEBase TE = getSimpleTileEntity(world, x, y, z);
 
         if (metadata == METADATA_DROP_ATTR_ONLY) {
