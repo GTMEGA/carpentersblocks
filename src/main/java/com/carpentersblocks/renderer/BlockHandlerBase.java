@@ -13,7 +13,7 @@ import com.carpentersblocks.util.handler.OverlayHandler;
 import com.carpentersblocks.util.handler.OverlayHandler.Overlay;
 import com.carpentersblocks.util.registry.FeatureRegistry;
 import com.carpentersblocks.util.registry.IconRegistry;
-import com.cricketcraft.chisel.api.ICarvable;
+import team.chisel.api.ICarvable;
 import com.gtnewhorizons.angelica.api.ThreadSafeISBRHFactory;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.common.Optional;
