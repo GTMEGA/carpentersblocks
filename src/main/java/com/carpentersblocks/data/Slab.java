@@ -43,6 +43,10 @@ public class Slab implements ISided {
         }
 
         int data = TE.getData();
+        if (data < 0 || data > DIR_MAP.length) {
+            return ForgeDirection.UNKNOWN;
+        }
+
         return ForgeDirection.getOrientation(DIR_MAP[data - 1]);
     }
 
