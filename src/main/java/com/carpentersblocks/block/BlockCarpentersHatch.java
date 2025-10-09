@@ -377,6 +377,13 @@ public class BlockCarpentersHatch extends BlockCoverable {
         return BlockRegistry.carpentersHatchRenderID;
     }
 
+    //Always render the block as translucent so glass can be shiny in MEGA, at the cost of some performance.
+    @Override
+    public int getRenderBlockPass() {
+        return 1;
+    }
+
+
     @Override
     public ForgeDirection[] getValidRotations(World worldObj, int x, int y,int z)
     {

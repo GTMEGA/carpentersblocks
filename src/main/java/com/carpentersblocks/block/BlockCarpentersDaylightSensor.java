@@ -249,4 +249,10 @@ public class BlockCarpentersDaylightSensor extends BlockSided {
         return BlockRegistry.carpentersDaylightSensorRenderID;
     }
 
+    //Always render the block as translucent so glass can be shiny in MEGA, at the cost of some performance.
+    @Override
+    public int getRenderBlockPass() {
+        return 1;
+    }
+
 }
